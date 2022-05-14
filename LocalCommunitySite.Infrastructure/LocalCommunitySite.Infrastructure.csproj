@@ -18,8 +18,4 @@
     <ProjectReference Include="..\LocalCommunitySite.Domain\LocalCommunitySite.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
 </Project>
