@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation.AspNetCore;
 using LocalCommunitySite.API;
 using LocalCommunitySite.API.Extentions;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
 
 namespace LocalCommunitySite_BE
 {
@@ -46,6 +48,16 @@ namespace LocalCommunitySite_BE
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<AppDbContext>();
 
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    builder => builder.WithOrigins("*")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
+            });
+
             services.AddControllers(options =>
             {
                 options.Filters.Add(new CustomModelStateFilter());
@@ -59,14 +71,6 @@ namespace LocalCommunitySite_BE
             services.AddFluentValidation();
 
             services.RegisterServices();
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy("CorsPolicy",
-                    builder => builder.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
-            });
 
             services.AddSwaggerGen(c =>
             {
@@ -89,6 +93,8 @@ namespace LocalCommunitySite_BE
             app.UseMiddleware(typeof(ErrorHandlerMiddleware));
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthentication();
 
