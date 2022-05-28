@@ -14,6 +14,8 @@ namespace LocalCommunitySite.Domain.Interfaces.Services
 
         public Task<IEnumerable<PostGetDto>> GetAll();
 
+        public Task<IEnumerable<PostGetDto>> GetFiltered(PostFilterRequest filterRequest);
+
         public Task Update(int id, PostDto source);
     }
 }

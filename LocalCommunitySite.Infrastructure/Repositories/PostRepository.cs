@@ -1,7 +1,9 @@
 ﻿using LocalCommunitySite.Domain.Entities;
 using LocalCommunitySite.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LocalCommunitySite.Infrastructure.Repositories
@@ -15,11 +17,11 @@ namespace LocalCommunitySite.Infrastructure.Repositories
             _appDbContext = appDbContext;
         }
 
-        public async Task<int> Create(Post post)
+        public async Task<Post> Create(Post post)
         {
             var entity = await _appDbContext.Posts.AddAsync(post);
 
-            return entity.Entity.Id;
+            return entity.Entity;
         }
 
         public async Task Delete(Post post)
@@ -37,6 +39,35 @@ namespace LocalCommunitySite.Infrastructure.Repositories
         public async Task<IEnumerable<Post>> GetAll()
         {
             return _appDbContext.Posts.AsNoTracking();
+        }
+
+        public async Task<IEnumerable<Post>> GetFiltered(string title, PostStatus? status, DateTime? startDate, DateTime? endDate)
+        {
+            var query = _appDbContext.Posts.AsQueryable();
+
+            if(!string.IsNullOrEmpty(title))
+            {
+                query = query.Where(x => x.Title.Contains(title));
+            }
+
+            if (status != null)
+            {
+                query = query.Where(x => x.Status == status);
+            }
+
+            if(startDate != null && endDate != null)
+            {
+                if(startDate != endDate)
+                {
+                    query = query.Where(x => x.CreatedAt > startDate && x.CreatedAt < endDate);
+                }
+                else
+                {
+                    query = query.Where(x => x.CreatedAt == startDate);
+                }
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task SaveChangesAsync()

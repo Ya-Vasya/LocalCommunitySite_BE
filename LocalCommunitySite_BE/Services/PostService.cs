@@ -29,9 +29,14 @@ namespace LocalCommunitySite.API.Services
             Post post = new Post();
             post.Title = source.Title;
             post.Body = source.Body;
-            post.CreatedAt = DateTime.Now;
+            post.CreatedAt = source.CreatedAt;
+            post.Status = source.Status;
 
-            return await _postRepository.Create(post);
+            var createdPost = await _postRepository.Create(post);
+
+            await _postRepository.SaveChangesAsync();
+
+            return createdPost.Id;
         }
 
         public async Task Delete(int id)
@@ -41,6 +46,8 @@ namespace LocalCommunitySite.API.Services
             _ = postToDelete ?? throw new NotFoundException($"Object with id: {id} not found");
 
             await _postRepository.Delete(postToDelete);
+
+            await _postRepository.SaveChangesAsync();
         }
 
         public async Task<PostGetDto> Get(int id)
@@ -56,7 +63,7 @@ namespace LocalCommunitySite.API.Services
         {
             var posts = await _postRepository.GetAll();
 
-            return posts.Select(x => _mapper.Map<PostGetDto>(x));
+            return posts.Select(x => _mapper.Map<PostGetDto>(x)).OrderByDescending(x => x.Id);
         }
 
         public async Task Update(int id, PostDto source)
@@ -69,9 +76,23 @@ namespace LocalCommunitySite.API.Services
 
             post.Title = source.Title;
             post.Body = source.Body;
+            post.Status = source.Status;
             post.CreatedAt = source.CreatedAt;
 
             await _postRepository.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<PostGetDto>> GetFiltered(PostFilterRequest filterRequest)
+        {
+            _ = filterRequest ?? throw new ObjectNullException($"{nameof(filterRequest)} is null");
+
+            var posts = await _postRepository.GetFiltered(
+                filterRequest.Title,
+                filterRequest.Status,
+                filterRequest.StartDate,
+                filterRequest.EndDate);
+
+            return posts.Select(x => _mapper.Map<PostGetDto>(x)).OrderByDescending(x => x.Id);
         }
     }
 }

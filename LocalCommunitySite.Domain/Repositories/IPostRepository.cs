@@ -1,4 +1,5 @@
 ﻿using LocalCommunitySite.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace LocalCommunitySite.Domain.Repositories
 {
     public interface IPostRepository
     {
-        public Task<int> Create(Post post);
+        public Task<Post> Create(Post post);
 
         public Task Delete(Post post);
 
@@ -15,5 +16,7 @@ namespace LocalCommunitySite.Domain.Repositories
         public Task<IEnumerable<Post>> GetAll();
 
         public Task SaveChangesAsync();
+
+        public Task<IEnumerable<Post>> GetFiltered(string title, PostStatus? status, DateTime? startDate, DateTime? endDate);
     }
 }

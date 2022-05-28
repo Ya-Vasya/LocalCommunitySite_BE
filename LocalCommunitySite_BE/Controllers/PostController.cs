@@ -62,6 +62,13 @@ namespace LocalCommunitySite.API.Controllers
             return Ok();
         }
 
+        [HttpPost("filter")]
+        //[Authorize]
+        public async Task<IActionResult> GetFiltered([FromBody] PostFilterRequest filterRequest)
+        {
+            _ = filterRequest ?? throw new BadRequestException(nameof(filterRequest));
 
+            return Ok(await _postService.GetFiltered(filterRequest));
+        }
     }
 }
