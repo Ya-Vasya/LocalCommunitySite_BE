@@ -9,6 +9,7 @@ namespace LocalCommunitySite.Domain.Entities
     public enum PostStatus
     {
         Draft = 0,
-        Active = 1
+        Planned = 1,
+        Active = 2
     }
 }
