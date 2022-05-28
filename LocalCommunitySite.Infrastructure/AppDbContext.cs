@@ -16,5 +16,6 @@ namespace LocalCommunitySite.Infrastructure
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
         public virtual DbSet<Post> Posts { get; set; }
+        public virtual DbSet<Feedback> Feedbacks { get; set; }
     }
 }

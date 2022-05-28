@@ -1,6 +1,8 @@
-﻿using LocalCommunitySite.API.Configuration;
+﻿using AutoMapper;
+using LocalCommunitySite.API.Configuration;
 using LocalCommunitySite.API.Extentions.Exceptions;
 using LocalCommunitySite.API.Models.AuthenticationDtos;
+using LocalCommunitySite.API.Models.UserDtos;
 using LocalCommunitySite.Domain.Entities;
 using LocalCommunitySite.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -26,17 +28,20 @@ namespace LocalCommunitySite.API.Controllers
         private readonly JwtConfig _jwtConfig;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly AppDbContext _appDbContext;
+        private readonly IMapper _mapper;
 
         public AuthenticationController(
             UserManager<IdentityUser> userManager,
             IOptionsMonitor<JwtConfig> optionsMonitor,
             TokenValidationParameters tokenValidationParameters,
-            AppDbContext appDbContext)
+            AppDbContext appDbContext,
+            IMapper mapper)
         {
             _userManager = userManager;
             _jwtConfig = optionsMonitor.CurrentValue;
             _tokenValidationParameters = tokenValidationParameters;
             _appDbContext = appDbContext;
+            _mapper = mapper;
         }
 
         [HttpPost("register")]
@@ -60,6 +65,57 @@ namespace LocalCommunitySite.API.Controllers
             var jwtToken = await GenerateJwtToken(newUser);
 
             return Ok(jwtToken);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Edit([FromBody] UserEditDto source)
+        {
+            var user = await _userManager.FindByEmailAsync(source.Email);
+
+            if (user != null)
+            {
+                throw new BadRequestException("User with such email is already exist");
+            }
+
+            await _userManager.ChangePasswordAsync(user, source.CurrentPassword, source.NewPassword);
+
+            return Ok();
+        }
+
+        [HttpGet("{email}")]
+        public async Task<IActionResult> Get(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user != null)
+            {
+                throw new BadRequestException("User with such email is already exist");
+            }
+
+            return Ok(_mapper.Map<UserDto>(user));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var users = await _userManager.Users.ToListAsync();
+
+            return Ok(users.Select(x => _mapper.Map<UserDto>(x)));
+        }
+
+        [HttpDelete("{email}")]
+        public async Task<IActionResult> Delete(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user != null)
+            {
+                throw new BadRequestException("User with such email is already exist");
+            }
+
+            await _userManager.DeleteAsync(user);
+
+            return Ok();
         }
 
         [HttpPost("login")]

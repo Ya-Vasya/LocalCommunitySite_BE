@@ -61,7 +61,6 @@ namespace LocalCommunitySite_BE
             services.AddControllers(options =>
             {
                 options.Filters.Add(new CustomModelStateFilter());
-
             })
             .ConfigureApiBehaviorOptions(options =>
             {
