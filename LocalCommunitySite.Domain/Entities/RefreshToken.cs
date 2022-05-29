@@ -21,6 +21,6 @@ namespace LocalCommunitySite.Domain.Entities
 
         public DateTime ExpirationDate { get; set; }
 
-        public virtual IdentityUser User { get; set; }
+        public virtual User User { get; set; }
     }
 }

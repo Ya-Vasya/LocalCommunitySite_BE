@@ -1,6 +1,6 @@
 ﻿using LocalCommunitySite.API.Extentions.Exceptions;
 using LocalCommunitySite.API.Models.PostDtos;
-using LocalCommunitySite.Domain.Interfaces.Services;
+using LocalCommunitySite.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -28,6 +28,13 @@ namespace LocalCommunitySite.API.Controllers
         [HttpGet]
         //[Authorize]
         public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _postService.GetAll());
+        }
+
+        [HttpGet("comments/{id}")]
+        //[Authorize]
+        public async Task<IActionResult> GetCommentByPostId(int id)
         {
             return Ok(await _postService.GetAll());
         }

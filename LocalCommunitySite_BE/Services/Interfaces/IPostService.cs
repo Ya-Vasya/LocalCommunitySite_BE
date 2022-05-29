@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace LocalCommunitySite.Domain.Interfaces.Services
+namespace LocalCommunitySite.API.Services.Interfaces
 {
     public interface IPostService
     {

@@ -24,14 +24,14 @@ namespace LocalCommunitySite.API.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly JwtConfig _jwtConfig;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly AppDbContext _appDbContext;
         private readonly IMapper _mapper;
 
         public AuthenticationController(
-            UserManager<IdentityUser> userManager,
+            UserManager<User> userManager,
             IOptionsMonitor<JwtConfig> optionsMonitor,
             TokenValidationParameters tokenValidationParameters,
             AppDbContext appDbContext,
@@ -54,7 +54,7 @@ namespace LocalCommunitySite.API.Controllers
                 throw new BadRequestException("User with such email is already exist");
             }
 
-            IdentityUser newUser = new IdentityUser() { Email = userRegistrationDto.Email, UserName = userRegistrationDto.Email };
+            User newUser = new User() { Email = userRegistrationDto.Email, UserName = userRegistrationDto.Email };
             var isCreated = await _userManager.CreateAsync(newUser, userRegistrationDto.Password);
 
             if(!isCreated.Succeeded)
@@ -263,7 +263,7 @@ namespace LocalCommunitySite.API.Controllers
             return dateTimeVal;
         }
 
-        private async Task<AuthResult> GenerateJwtToken(IdentityUser user)
+        private async Task<AuthResult> GenerateJwtToken(User user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
 

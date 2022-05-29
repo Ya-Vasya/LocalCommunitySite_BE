@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using LocalCommunitySite.API.Extentions.Exceptions;
+using LocalCommunitySite.API.Models.CommentDtos;
 using LocalCommunitySite.API.Models.PostDtos;
+using LocalCommunitySite.API.Services.Interfaces;
 using LocalCommunitySite.Domain.Entities;
-using LocalCommunitySite.Domain.Interfaces.Services;
 using LocalCommunitySite.Domain.Repositories;
 using System;
 using System.Collections.Generic;
@@ -14,11 +15,13 @@ namespace LocalCommunitySite.API.Services
     public class PostService : IPostService
     {
         private readonly IPostRepository _postRepository;
+        private readonly ICommentRepository _commentRepository;
         private readonly IMapper _mapper;
 
-        public PostService(IPostRepository postRepository, IMapper mapper)
+        public PostService(IPostRepository postRepository, ICommentRepository commentRepository, IMapper mapper)
         {
             _postRepository = postRepository;
+            _commentRepository = commentRepository;
             _mapper = mapper;
         }
 

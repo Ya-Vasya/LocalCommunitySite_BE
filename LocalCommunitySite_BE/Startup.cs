@@ -4,6 +4,7 @@ using LocalCommunitySite.API;
 using LocalCommunitySite.API.Extentions;
 using LocalCommunitySite.API.Extentions.Filters;
 using LocalCommunitySite.API.Extentions.Middleware;
+using LocalCommunitySite.Domain.Entities;
 using LocalCommunitySite.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -45,7 +46,7 @@ namespace LocalCommunitySite_BE
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtConfig(Configuration, services);
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<AppDbContext>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

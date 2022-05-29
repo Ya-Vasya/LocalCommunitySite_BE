@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LocalCommunitySite.API.Models.CommentDtos;
 using LocalCommunitySite.API.Models.FeedbackDtos;
 using LocalCommunitySite.API.Models.PostDtos;
 using LocalCommunitySite.API.Models.UserDtos;
@@ -16,8 +17,10 @@ namespace LocalCommunitySite.API.Extentions
             CreateMap<Feedback, FeedbackDto>().ReverseMap();
             CreateMap<Feedback, FeedbackFilterRequest>().ReverseMap();
             CreateMap<Feedback, FeedbackRequest>().ReverseMap();
-            CreateMap<IdentityUser, UserDto>().ReverseMap();
-            CreateMap<IdentityUser, UserEditDto>().ReverseMap();
+            CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<User, UserEditDto>().ReverseMap();
+            CreateMap<Comment, CommentDto>().ReverseMap();
+            CreateMap<Comment, CommentGetDto>().ReverseMap();
         }
     }
 }
