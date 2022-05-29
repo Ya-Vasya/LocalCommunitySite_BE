@@ -1,5 +1,6 @@
 ﻿using LocalCommunitySite.Domain.Entities;
 using LocalCommunitySite.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,8 +41,12 @@ namespace LocalCommunitySite.Infrastructure.Repositories
 
         public IQueryable<Comment> GetFiltered(int postId)
         {
-            return _appDbContext.Comments
+            var comments = _appDbContext.Comments
                 .Where(i => i.PostId == postId && i.ParentCommentId == null);
+
+            _appDbContext.Comments.Load();
+
+            return comments;
         }
 
         public async Task SaveChangesAsync()
