@@ -29,13 +29,10 @@ namespace LocalCommunitySite.API.Services
         {
             _ = source ?? throw new ObjectNullException($"{nameof(source)} is null");
 
-            Post post = new Post();
-            post.Title = source.Title;
-            post.Body = source.Body;
-            post.CreatedAt = source.CreatedAt;
-            post.Status = source.Status;
+            var post = _mapper.Map<PostDto, Post>(source);
 
             var createdPost = await _postRepository.Create(post);
+            createdPost.CreatedAt = DateTime.Now;
 
             await _postRepository.SaveChangesAsync();
 
@@ -77,10 +74,7 @@ namespace LocalCommunitySite.API.Services
 
             _ = post ?? throw new NotFoundException($"Object with id: {id} not found");
 
-            post.Title = source.Title;
-            post.Body = source.Body;
-            post.Status = source.Status;
-            post.CreatedAt = source.CreatedAt;
+            _mapper.Map(source, post);
 
             await _postRepository.SaveChangesAsync();
         }

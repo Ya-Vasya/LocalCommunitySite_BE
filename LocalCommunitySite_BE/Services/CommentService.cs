@@ -25,8 +25,13 @@ namespace LocalCommunitySite.API.Services
         public async Task<int> Create(CommentDto comment)
         {
             var mappedComment = _mapper.Map<CommentDto, Comment>(comment);
+            mappedComment.CreatedAt = DateTime.Now;
 
-            return (await _commentRepository.Create(mappedComment)).Id;
+            var createdComment = await _commentRepository.Create(mappedComment);
+
+            await _commentRepository.SaveChangesAsync();
+
+            return createdComment.Id;
         }
 
         public async Task Delete(int id)
