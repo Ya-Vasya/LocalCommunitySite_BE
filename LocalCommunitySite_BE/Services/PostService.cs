@@ -2,9 +2,12 @@
 using LocalCommunitySite.API.Extentions.Exceptions;
 using LocalCommunitySite.API.Models.CommentDtos;
 using LocalCommunitySite.API.Models.PostDtos;
+using LocalCommunitySite.API.Models.Shared;
 using LocalCommunitySite.API.Services.Interfaces;
 using LocalCommunitySite.Domain.Entities;
+using LocalCommunitySite.Domain.Query;
 using LocalCommunitySite.Domain.Repositories;
+using LocalCommunitySite.Domain.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,7 +66,7 @@ namespace LocalCommunitySite.API.Services
         {
             var posts = await _postRepository.GetAll();
 
-            return posts.Select(x => _mapper.Map<PostGetDto>(x));
+            return posts.Select(x => _mapper.Map<PostGetDto>(x)).OrderByDescending(x => x.CreatedAt);
         }
 
         public async Task Update(int id, PostDto source)
@@ -89,7 +92,14 @@ namespace LocalCommunitySite.API.Services
                 filterRequest.StartDate,
                 filterRequest.EndDate);
 
-            return posts.Select(x => _mapper.Map<PostGetDto>(x)).OrderByDescending(x => x.Id);
+            return posts.Select(x => _mapper.Map<PostGetDto>(x)).OrderByDescending(x => x.CreatedAt);
+        }
+
+        public async Task<PaginationDto<PostGetDto>> GetQuery(PostQueryDto query)
+        {
+            var mappedQuery = _mapper.Map<PostQueryDto, PostQuery>(query);
+
+            return _mapper.Map<Pagination<Post>, PaginationDto<PostGetDto>>(await _postRepository.GetQuery(mappedQuery));
         }
     }
 }

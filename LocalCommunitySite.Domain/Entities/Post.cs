@@ -15,5 +15,7 @@ namespace LocalCommunitySite.Domain.Entities
         public DateTime CreatedAt { get; set; }
 
         public PostStatus Status { get; set; }
+
+        public PostSection Section { get; set; }
     }
 }

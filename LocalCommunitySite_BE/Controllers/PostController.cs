@@ -24,18 +24,17 @@ namespace LocalCommunitySite.API.Controllers
             return Ok(await _postService.Get(id));
         }
 
+        [HttpGet("query")]
+        public async Task<IActionResult> GetQuery([FromQuery]PostQueryDto query)
+        {
+            return Ok(await _postService.GetQuery(query));
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _postService.GetAll());
         }
-
-        [HttpGet("comments/{id}")]
-        public async Task<IActionResult> GetCommentByPostId(int id)
-        {
-            return Ok(await _postService.GetAll());
-        }
-
 
         [HttpPost]
         [Authorize]

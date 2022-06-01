@@ -1,6 +1,8 @@
 ﻿using LocalCommunitySite.Domain.Entities;
 using LocalCommunitySite.Domain.Helpers;
+using LocalCommunitySite.Domain.Query;
 using LocalCommunitySite.Domain.Repositories;
+using LocalCommunitySite.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -76,6 +78,22 @@ namespace LocalCommunitySite.Infrastructure.Repositories
             var posts = _appDbContext.Posts.GetPaged(pageNumber, pageSize);
 
             return posts.Results.AsEnumerable();
+        }
+
+        public async Task<Pagination<Post>> GetQuery(PostQuery query)
+        {
+            var posts = _appDbContext.Posts
+                .Where(i => query.Status == null || i.Status == query.Status)
+                .Where(i => query.Section == null || i.Section == query.Section)
+                .Where(i => query.StartDate == null || i.CreatedAt >= query.StartDate)
+                .Where(i => query.EndDate == null || i.CreatedAt <= query.EndDate)
+                .OrderByDescending(i => i.CreatedAt);
+
+            int length = posts.Count();
+
+            var filtered = await posts.Skip(query.Offset).Take(query.Limit).ToListAsync();
+
+            return new Pagination<Post>{ TotalLength = length, List = filtered };
         }
 
         public async Task SaveChangesAsync()

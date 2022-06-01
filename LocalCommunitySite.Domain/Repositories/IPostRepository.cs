@@ -1,4 +1,6 @@
 ﻿using LocalCommunitySite.Domain.Entities;
+using LocalCommunitySite.Domain.Query;
+using LocalCommunitySite.Domain.Shared;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -20,5 +22,7 @@ namespace LocalCommunitySite.Domain.Repositories
         public Task<IEnumerable<Post>> GetPaged(int pageSize, int pageNumber);
 
         public Task<IEnumerable<Post>> GetFiltered(string title, PostStatus? status, DateTime? startDate, DateTime? endDate);
+
+        public Task<Pagination<Post>> GetQuery(PostQuery query);
     }
 }
