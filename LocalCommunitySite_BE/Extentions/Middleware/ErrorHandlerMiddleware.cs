@@ -39,6 +39,7 @@ namespace LocalCommunitySite.API.Extentions.Middleware
                             Message = "Internal Server Error",
                             StackTrace = error.StackTrace
                         });
+                        response.StatusCode = (int)HttpStatusCode.InternalServerError;
                         await response.WriteAsync(result);
                         break;
                 }

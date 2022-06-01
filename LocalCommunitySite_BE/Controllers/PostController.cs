@@ -19,21 +19,18 @@ namespace LocalCommunitySite.API.Controllers
         }
 
         [HttpGet("{id}")]
-        //[Authorize]
         public async Task<IActionResult> GetById(int id)
         {
             return Ok(await _postService.Get(id));
         }
 
         [HttpGet]
-        //[Authorize]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _postService.GetAll());
         }
 
         [HttpGet("comments/{id}")]
-        //[Authorize]
         public async Task<IActionResult> GetCommentByPostId(int id)
         {
             return Ok(await _postService.GetAll());
@@ -41,7 +38,7 @@ namespace LocalCommunitySite.API.Controllers
 
 
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] PostDto post)
         {
             _ = post ?? throw new BadRequestException(nameof(post));
@@ -50,7 +47,7 @@ namespace LocalCommunitySite.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
             await _postService.Delete(id);
@@ -59,7 +56,7 @@ namespace LocalCommunitySite.API.Controllers
         }
 
         [HttpPut("{id}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> Update(int id, [FromBody] PostDto source)
         {
             _ = source ?? throw new BadRequestException(nameof(source));
@@ -70,7 +67,7 @@ namespace LocalCommunitySite.API.Controllers
         }
 
         [HttpPost("filter")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetFiltered([FromBody] PostFilterRequest filterRequest)
         {
             _ = filterRequest ?? throw new BadRequestException(nameof(filterRequest));

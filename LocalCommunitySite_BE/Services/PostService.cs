@@ -63,7 +63,7 @@ namespace LocalCommunitySite.API.Services
         {
             var posts = await _postRepository.GetAll();
 
-            return posts.Select(x => _mapper.Map<PostGetDto>(x)).OrderByDescending(x => x.Id);
+            return posts.Select(x => _mapper.Map<PostGetDto>(x));
         }
 
         public async Task Update(int id, PostDto source)

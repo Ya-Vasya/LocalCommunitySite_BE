@@ -17,6 +17,8 @@ namespace LocalCommunitySite.Domain.Repositories
 
         public Task SaveChangesAsync();
 
+        public Task<IEnumerable<Post>> GetPaged(int pageSize, int pageNumber);
+
         public Task<IEnumerable<Post>> GetFiltered(string title, PostStatus? status, DateTime? startDate, DateTime? endDate);
     }
 }

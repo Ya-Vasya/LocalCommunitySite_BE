@@ -62,9 +62,7 @@ namespace LocalCommunitySite.API.Controllers
                 throw new CustomException(isCreated.Errors.First().Description);
             }
 
-            var jwtToken = await GenerateJwtToken(newUser);
-
-            return Ok(jwtToken);
+            return Ok();
         }
 
         [HttpPut]
@@ -108,9 +106,9 @@ namespace LocalCommunitySite.API.Controllers
         {
             var user = await _userManager.FindByEmailAsync(email);
 
-            if (user != null)
+            if (user == null)
             {
-                throw new BadRequestException("User with such email is already exist");
+                throw new BadRequestException("User with such email not exist");
             }
 
             await _userManager.DeleteAsync(user);

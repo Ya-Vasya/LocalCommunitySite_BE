@@ -1,4 +1,5 @@
 ﻿using LocalCommunitySite.Domain.Entities;
+using LocalCommunitySite.Domain.Helpers;
 using LocalCommunitySite.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -68,6 +69,13 @@ namespace LocalCommunitySite.Infrastructure.Repositories
             }
 
             return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Post>> GetPaged(int pageSize, int pageNumber)
+        {
+            var posts = _appDbContext.Posts.GetPaged(pageNumber, pageSize);
+
+            return posts.Results.AsEnumerable();
         }
 
         public async Task SaveChangesAsync()
