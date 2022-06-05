@@ -15,6 +15,8 @@ namespace LocalCommunitySite.API.Models.PostDtos
 
         public PostStatus Status { get; set; }
 
+        public PostSection Section { get; set; }
+
         public DateTime CreatedAt { get; set; }
     }
 }

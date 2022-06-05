@@ -85,8 +85,8 @@ namespace LocalCommunitySite.Infrastructure.Repositories
             var posts = _appDbContext.Posts
                 .Where(i => query.Status == null || i.Status == query.Status)
                 .Where(i => query.Section == null || i.Section == query.Section)
-                .Where(i => query.StartDate == null || i.CreatedAt >= query.StartDate)
-                .Where(i => query.EndDate == null || i.CreatedAt <= query.EndDate)
+                .Where(i => query.StartDate == null || i.CreatedAt.Date >= query.StartDate.Value.Date)
+                .Where(i => query.EndDate == null || i.CreatedAt.Date <= query.EndDate.Value.Date)
                 .OrderByDescending(i => i.CreatedAt);
 
             int length = posts.Count();

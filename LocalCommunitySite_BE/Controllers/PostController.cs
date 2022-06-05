@@ -31,6 +31,7 @@ namespace LocalCommunitySite.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _postService.GetAll());

@@ -33,10 +33,10 @@ namespace LocalCommunitySite.API.Extentions.Middleware
                         await HandleExceptionAsync(context, e);
                         break;
                     default:
-                        var result = JsonSerializer.Serialize(new 
+                        var result = JsonSerializer.Serialize(new
                         {
-                            StatusCode = (int)HttpStatusCode.InternalServerError,
-                            Message = "Internal Server Error",
+                            Type = error.GetType().Name,
+                            Message = error.Message,
                             StackTrace = error.StackTrace
                         });
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;

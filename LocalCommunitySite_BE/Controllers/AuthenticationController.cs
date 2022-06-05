@@ -5,6 +5,7 @@ using LocalCommunitySite.API.Models.AuthenticationDtos;
 using LocalCommunitySite.API.Models.UserDtos;
 using LocalCommunitySite.Domain.Entities;
 using LocalCommunitySite.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +46,7 @@ namespace LocalCommunitySite.API.Controllers
         }
 
         [HttpPost("register")]
+        [Authorize]
         public async Task<IActionResult> Register([FromBody] UserRegistrationDto userRegistrationDto)
         {
             var user = await _userManager.FindByEmailAsync(userRegistrationDto.Email);
@@ -65,6 +67,85 @@ namespace LocalCommunitySite.API.Controllers
             return Ok();
         }
 
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginRequestDto userDto)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(userDto.Email);
+
+            if (existingUser == null)
+            {
+                throw new BadRequestException("User with such email does not exist");
+            }
+
+            var isCorrect = await _userManager.CheckPasswordAsync(existingUser, userDto.Password);
+
+            if (!isCorrect)
+            {
+                throw new BadRequestException("Password is incorrect");
+            }
+
+            var jwtToken = await GenerateJwtToken(existingUser);
+
+            return Ok(jwtToken);
+        }
+
+        private async Task<AuthResult> GenerateJwtToken(User user)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+
+            var key = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim("Id", user.Id),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                }),
+                Expires = DateTime.UtcNow.AddDays(2),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
+            var jwtToken = jwtTokenHandler.WriteToken(token);
+
+            var refreshToken = new RefreshToken()
+            {
+                JwtId = token.Id,
+                IsUsed = false,
+                IsRevoked = false,
+                UserId = user.Id,
+                AddedDate = DateTime.UtcNow,
+                ExpirationDate = DateTime.UtcNow.AddMonths(6),
+                Token = RandomString(35) + Guid.NewGuid()
+            };
+
+            await _appDbContext.RefreshTokens.AddAsync(refreshToken);
+
+            await _appDbContext.SaveChangesAsync();
+
+            return new AuthResult()
+            {
+                Token = jwtToken,
+                IsSuccess = true,
+                RefreshToken = refreshToken.Token
+            };
+        }
+
+        private string RandomString(int length)
+        {
+            var random = new Random();
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(x => x[random.Next(x.Length)])
+                .ToArray());
+
+        }
+
         [HttpPut]
         public async Task<IActionResult> Edit([FromBody] UserEditDto source)
         {
@@ -81,6 +162,7 @@ namespace LocalCommunitySite.API.Controllers
         }
 
         [HttpGet("{email}")]
+        [Authorize]
         public async Task<IActionResult> Get(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -94,6 +176,7 @@ namespace LocalCommunitySite.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -102,6 +185,7 @@ namespace LocalCommunitySite.API.Controllers
         }
 
         [HttpDelete("{email}")]
+        [Authorize]
         public async Task<IActionResult> Delete(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -114,28 +198,6 @@ namespace LocalCommunitySite.API.Controllers
             await _userManager.DeleteAsync(user);
 
             return Ok();
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginRequestDto userDto)
-        {
-            var existingUser = await _userManager.FindByEmailAsync(userDto.Email);
-
-            if(existingUser == null)
-            {
-                throw new BadRequestException("User with such email does not exist");
-            }
-
-            var isCorrect = await _userManager.CheckPasswordAsync(existingUser, userDto.Password);
-
-            if (!isCorrect)
-            {
-                throw new BadRequestException("Password is incorrect");
-            }
-
-            var jwtToken = await GenerateJwtToken(existingUser);
-
-            return Ok(jwtToken);
         }
 
         [HttpPost("refresh-token")]
@@ -259,63 +321,6 @@ namespace LocalCommunitySite.API.Controllers
             dateTimeVal = dateTimeVal.AddSeconds(utcExpirationDate);
 
             return dateTimeVal;
-        }
-
-        private async Task<AuthResult> GenerateJwtToken(User user)
-        {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-
-            var key = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("Id", user.Id),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(3),
-                SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(key),
-                    SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
-            var jwtToken = jwtTokenHandler.WriteToken(token);
-
-            var refreshToken = new RefreshToken()
-            {
-                JwtId = token.Id,
-                IsUsed = false,
-                IsRevoked = false,
-                UserId = user.Id,
-                AddedDate = DateTime.UtcNow,
-                ExpirationDate = DateTime.UtcNow.AddMonths(6),
-                Token = RandomString(35) + Guid.NewGuid()
-            };
-
-            await _appDbContext.RefreshTokens.AddAsync(refreshToken);
-
-            await _appDbContext.SaveChangesAsync();
-
-            return new AuthResult()
-            {
-                Token = jwtToken,
-                IsSuccess = true,
-                RefreshToken = refreshToken.Token
-            };
-        }
-
-        private string RandomString(int length)
-        {
-            var random = new Random();
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-            return new string(Enumerable.Repeat(chars, length)
-                .Select(x => x[random.Next(x.Length)])
-                .ToArray());
-
         }
     }
 }
